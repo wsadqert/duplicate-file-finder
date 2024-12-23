@@ -48,6 +48,7 @@ class FileMonitor:
 		self.duplicates = {}  # {hash: [file_path]}
 		self.load_state()
 		self.observer = Observer()  # Initialize the observer here
+		self.paused = False  # New variable to track paused state
 
 	def calculate_hash(self, file_path):
 		"""Calculate SHA-1 hash of a file."""
@@ -235,6 +236,20 @@ class FileMonitor:
 				print(f"  {path}")
 			print()  # Add a newline for better readability
 
+	def pause_monitoring(self):
+		"""Pause the monitoring of the directory."""
+		if not self.paused:
+			self.observer.stop()
+			self.paused = True
+			logging.info("Monitoring paused")
+
+	def resume_monitoring(self):
+		"""Resume monitoring of the directory."""
+		if self.paused:
+			self.observer.start()  # Restart the observer
+			self.initial_scan()  # Perform an initial scan after resuming
+			self.paused = False
+			logging.info("Monitoring resumed")
 
 	def start_monitoring(self):
 		"""Start monitoring the directory for changes."""
